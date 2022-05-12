@@ -28,8 +28,8 @@ contract Astronut is ERC721 {
 
     error InsufficientFunds();
 
-    modifier meetsMintPrice(uint256 amountToMint) {
-        if (uint256(mintPrice) * amountToMint > msg.value) {
+    modifier meetsMintPrice() {
+        if (uint256(mintPrice) > msg.value) {
             revert InsufficientFunds();
         }
         _;
@@ -44,7 +44,7 @@ contract Astronut is ERC721 {
     function mint() 
         public
         payable
-        meetsMintPrice(1) {
+        meetsMintPrice() {
         _safeMint(msg.sender, id);
         owners[msg.sender].push(id);
         id++;
