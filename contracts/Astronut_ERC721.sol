@@ -15,6 +15,8 @@ contract Astronut is ERC721 {
     HDNToken tokenContract;
     uint256 public id;
     uint56 private mintPrice;
+    uint56 private maxTokens;
+    mapping(address => uint256[]) private owners;
 
     constructor(
         address _yield, 
@@ -24,6 +26,7 @@ contract Astronut is ERC721 {
         tokenContract = HDNToken(_token);
         mintPrice = _mintPrice;
         id = 0;
+        maxTokens = 100;
     }
 
     error InsufficientFunds();
@@ -35,8 +38,6 @@ contract Astronut is ERC721 {
         _;
     }
 
-    mapping(address => uint256[]) private owners;
-
     function getTokensOwnedBy(address claimant) public view returns(uint256[] memory) {
         return owners[claimant];
     }
@@ -45,6 +46,8 @@ contract Astronut is ERC721 {
         public
         payable
         meetsMintPrice() {
+        require(id < maxTokens, "there are no more astronuts left to be minted");
+
         _safeMint(msg.sender, id);
         owners[msg.sender].push(id);
         id++;
