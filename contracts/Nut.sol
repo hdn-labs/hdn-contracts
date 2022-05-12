@@ -5,17 +5,23 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./AddressHelper.sol";
 import "./HDNYieldToNut.sol";
+import "./HDN.sol";
 
 contract Nut is ERC721 {
     using SafeMath for uint;
     using AddressHelper for address;
 
-    IYield public yieldContract;
+    IYield yieldContract;
+    HDNToken tokenContract;
     uint256 public id;
     uint56 private mintPrice;
 
-    constructor(address _yield, uint56 _mintPrice) ERC721("Nut", "NUT") {
+    constructor(
+        address _yield, 
+        address _token,
+        uint56 _mintPrice) ERC721("Nut", "NUT") {
         yieldContract = IYield(_yield);
+        tokenContract = HDNToken(_token);
         mintPrice = _mintPrice;
         id = 0;
     }
@@ -79,9 +85,10 @@ contract Nut is ERC721 {
         uint256 pending = getPendingRewardsFor(claimant);
         uint256 total = rewards[claimant].totalRewards + pending;
 
-        // TODO send pending to address
+        // send pending to address
+        tokenContract.collectReward(claimant, pending);
 
-        //update rewards state for next claim
+        // update rewards state for next claim
         rewards[claimant] = yieldContract.createNftOwnerRewards(0, total);
 
         return pending;

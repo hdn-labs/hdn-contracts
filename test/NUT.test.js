@@ -80,7 +80,7 @@ describe('Nut', function () {
     expect(await nut.getPendingRewardsFor(owner.address)).to.be.equal(0);
   });
 
-  it('Should properly calculate rewards after transfer', async function () {
+  it('getPendingRewardsFor() should properly calculate rewards after transfer', async function () {
     const { nut, mintNutNFT } = await create();
 
     const [owner, addr1] = await ethers.getSigners();
@@ -102,6 +102,39 @@ describe('Nut', function () {
     /** rewards should be correct */
     expect(await getPendingRewardsFor(owner.address)).to.equal(50);
     expect(await getPendingRewardsFor(addr1.address)).to.equal(100);
+
+    async function getPendingRewardsFor(address) {
+      let txn = await nut.getPendingRewardsFor(address);
+      return parseInt(ethers.utils.formatEther(txn));
+    }
+  });
+
+  it('claimRewardsFor() should transfer accurate amount of HDN rewards to nft owners', async function () {
+    const { nut, mintNutNFT, hdn } = await create();
+
+    const [owner, addr1] = await ethers.getSigners();
+
+    await mintNutNFT(owner);
+
+    await increase_time_by_days(5);
+
+    let txn2 = await nut.transferFrom(owner.address, addr1.address, 0);
+    await txn2.wait();
+
+    await increase_time_by_days(10);
+
+    /** balances should be correct */
+    expect(await nut.balanceOf(owner.address)).to.equal(0);
+    expect(await nut.balanceOf(addr1.address)).to.equal(1);
+    expect(await nut.id()).to.equal(1);
+
+    /** rewards should be correct */
+    expect(await getPendingRewardsFor(owner.address)).to.equal(50);
+    expect(await getPendingRewardsFor(addr1.address)).to.equal(100);
+
+    /** owned tokens after claiming rewards should be correct */
+    await nut.connect(owner).claimRewardsFor(owner.address);
+    await nut.connect(addr1).claimRewardsFor(addr1.address);
 
     async function getPendingRewardsFor(address) {
       let txn = await nut.getPendingRewardsFor(address);

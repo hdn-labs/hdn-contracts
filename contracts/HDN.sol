@@ -5,14 +5,20 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
 contract HDNToken is ERC20, AccessControl {
-    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 public constant TREASURY_ROLE = keccak256("TREASURY_ROLE");
 
     constructor() ERC20("HodlDeezNuts", "HDN") {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _grantRole(MINTER_ROLE, msg.sender);
+        _mint(address(this), 100_000 ether);
+        grantTreasury(msg.sender);
     }
 
-    function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {
-        _mint(to, amount);
+    function collectReward(address _to, uint256 amt) external onlyRole(TREASURY_ROLE) {
+        transferFrom(address(this), _to, amt);
+    }
+
+    function grantTreasury(address _to) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        _grantRole(TREASURY_ROLE, _to);
+        _approve(address(this), _to, totalSupply());
     }
 }
