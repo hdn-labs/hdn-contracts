@@ -1,0 +1,35 @@
+# 📚 Resources
+
+- Solidity
+  - [official docs](https://docs.soliditylang.org/en/v0.8.13/introduction-to-smart-contracts.html)
+  - [solidity by example](https://solidity-by-example.org/)
+  - [staking function](https://solidity-by-example.org/defi/staking-rewards/)
+  - [#1 security](https://hackernoon.com/solidity-tutorial-understanding-design-patterns-part-1)
+  - [#2 security](https://secureum.substack.com/p/security-pitfalls-and-best-practices-101?s=r)
+  - [#1 cheatsheet](https://github.com/manojpramesh/solidity-cheatsheet)
+  - [#2 cheatsheet](https://manojpramesh.github.io/solidity-cheatsheet/)
+  - [#3 cheatsheet](https://cdn.hashnode.com/res/hashnode/image/upload/v1648806727395/tk7laP50n.jpg?auto=compress,format&format=webp)
+- royalties
+  - [can nfts generate royalties?](https://medium.com/metapherse/can-nfts-generate-royalties-cc652dd432a9)
+  - [cryptomarketpool.com](https://cryptomarketpool.com/erc721-contract-that-supports-sales-royalties/)
+  - [openzepplin issue EIP-2981](https://github.com/OpenZeppelin/openzeppelin-contracts/issues/2789)
+  - [EIP-2981](https://github.com/alxrnz2/ERC1155-with-EIP2981-for-OpenSea#eip-2981-royalties)
+- NFT Metadata Storage Tools
+  - [intro](https://artynft.io/nft-granny/where-is-nft-art-stored/)
+  - [nft storage](https://nft.storage/)
+  - [ipfs](https://blog.logrocket.com/create-nft-upload-metadata-ipfs/)
+- [base64](https://www.utilities-online.info/base64)
+- svgs
+  - [svg-viewer](https://www.svgviewer.dev/)
+  - [docs](https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial)
+- Hedera
+  - [hedera docs](https://docs.hedera.com/guides/getting-started/try-examples/deploy-your-first-smart-contract)
+  - [hedera NFT metadata specification](https://github.com/hashgraph/hedera-improvement-proposal/blob/master/HIP/hip-10.md)
+  - [deploy smart contracts on hedera p1](https://hedera.com/blog/how-to-deploy-smart-contracts-on-hedera-part-1-a-simple-getter-and-setter-contract)
+  - [deploy smart contracts on hedera p2](https://hedera.com/blog/how-to-deploy-smart-contracts-on-hedera-part-2-a-contract-with-hedera-token-service-integration)
+- NFT tutorials
+  - [nft intro](http://adilmoujahid.com/posts/2021/05/intro-nfts-solidity/)
+  - [nft contract 1](https://dev.to/yakult/a-concise-hardhat-tutorial-part-2-writing-erc721-nft-5gm6)
+  - [nft contract 2](https://betterprogramming.pub/how-to-create-nfts-with-solidity-4fa1398eb70a)
+- [generating nfts/metadata from nft layers](https://github.com/HashLips/hashlips_art_engine)
+- [formatting ether units](https://docs.ethers.io/v5/api/utils/display-logic/#utils-formatEther)

@@ -1,0 +1,14 @@
+**/node_modules
+.env
+coverage
+coverage.json
+typechain-types
+.gitmodules
+
+#Hardhat files
+cache
+artifacts
+
+#user files
+local
+accounts.json
