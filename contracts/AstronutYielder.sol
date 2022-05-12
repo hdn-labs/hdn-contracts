@@ -2,8 +2,6 @@
 pragma solidity ^0.8.6;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "./HDN.sol";
-import "./Nut.sol";
 
 interface IYield {
     struct NftOwnerRewards {
@@ -16,7 +14,7 @@ interface IYield {
     function createNftOwnerRewards(uint256 pending, uint256 total) external view returns (NftOwnerRewards memory);
 }
 
-contract HDNYieldToNut is IYield {
+contract AstronutYielder is IYield {
     using SafeMath for uint;
 
     uint256 constant public BASE_RATE = 10 ether;

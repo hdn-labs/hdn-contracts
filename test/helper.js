@@ -38,11 +38,16 @@ module.exports = {
   mint_price,
   create: async function () {
     const [yield, hdn] = await Promise.all([
-      deploy('HDNYieldToNut'),
+      deploy('AstronutYielder'),
       deploy('HDNToken'),
     ]);
 
-    const nut = await deploy('Nut', yield.address, hdn.address, mint_price);
+    const nut = await deploy(
+      'Astronut',
+      yield.address,
+      hdn.address,
+      mint_price
+    );
     const [owner] = await ethers.getSigners();
     await await hdn.connect(owner).grantTreasury(nut.address);
 

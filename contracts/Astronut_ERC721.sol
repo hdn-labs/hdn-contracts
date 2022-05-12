@@ -4,10 +4,10 @@ pragma solidity ^0.8.6;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./AddressHelper.sol";
-import "./HDNYieldToNut.sol";
-import "./HDN.sol";
+import "./AstronutYielder.sol";
+import "./HDN_ERC20.sol";
 
-contract Nut is ERC721 {
+contract Astronut is ERC721 {
     using SafeMath for uint;
     using AddressHelper for address;
 
@@ -19,7 +19,7 @@ contract Nut is ERC721 {
     constructor(
         address _yield, 
         address _token,
-        uint56 _mintPrice) ERC721("Nut", "NUT") {
+        uint56 _mintPrice) ERC721("DeezAstronuts", "HDNA") {
         yieldContract = IYield(_yield);
         tokenContract = HDNToken(_token);
         mintPrice = _mintPrice;

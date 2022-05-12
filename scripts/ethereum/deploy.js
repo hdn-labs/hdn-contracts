@@ -1,6 +1,5 @@
 const main = async () => {
-  //deployContract('MyEpicNFT');
-  deployContract('HDNYieldToNut');
+  deployContract('HDNToken');
   //mint(nftContract);
 };
 

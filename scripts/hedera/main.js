@@ -34,7 +34,7 @@ function getHDNTokenContract(wallet) {
 
 function getNutNFTContract(wallet) {
   const contract = getContract(
-    'nut',
+    'astronut',
     wallet,
     '0x000000000000000000000000000000000211bb5d'
   );
@@ -111,8 +111,8 @@ async function getPendingRewardsFor(acnt) {
 }
 
 //deployContract();
-//getHDNTokenContract();
-//checkHDNBalance();
+getHDNTokenContract();
+checkHDNBalance(accounts.signer);
 //mintHDN(accounts.account1);
 //createAccount(1000);
 //deployNFTContract();
