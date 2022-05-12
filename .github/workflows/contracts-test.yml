@@ -1,0 +1,27 @@
+name: contracts-test
+
+on:
+  push:
+    branches:
+      - 'master'
+  pull_request:
+
+jobs:
+  contracts-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+
+      - name: build
+        working-directory: ./
+        run: npm ci && npm run build
+
+      - name: contract unit tests
+        working-directory: ./
+        run: npm test
