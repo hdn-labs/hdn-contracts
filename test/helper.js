@@ -33,6 +33,9 @@ module.exports = {
   },
   mineNBlocks,
   getLatestBlock,
+  getAddressBalance,
+  mint_price_ethers,
+  mint_price,
   create: async function () {
     const [yield, hdn] = await Promise.all([
       deploy('HDNYieldToNut'),
@@ -58,7 +61,6 @@ module.exports = {
         await txn.wait();
       },
       mintNutNFT,
-      mint_price_ethers,
     };
 
     /**
@@ -101,4 +103,11 @@ async function mineNBlocks(n) {
 
 async function getLatestBlock() {
   await ethers.provider.getBlock('latest');
+}
+
+async function getAddressBalance(address) {
+  const balance = await ethers.provider.getBalance(address);
+  //console.log(balance.toString()); // prints 100000000000... 18 zeros
+  // to format the value in a readable format
+  return ethers.utils.formatEther(balance);
 }

@@ -1,12 +1,20 @@
 const { expect } = require('chai');
 const { ethers } = require('hardhat');
-const { create, increase_time, increase_time_by_days } = require('./helper');
+const {
+  create,
+  increase_time,
+  increase_time_by_days,
+  getAddressBalance,
+  mint_price,
+} = require('./helper');
 
 describe('Nut', function () {
-  it('Should mint', async function () {
+  it('mint() should send ERC71 tokens to their respective minters and minters should pay the mint price', async function () {
     const { nut, mintNutNFT } = await create();
 
     const [owner, addr1] = await ethers.getSigners();
+
+    expect(await getAddressBalance(nut.address)).to.equal('0.0');
 
     await mintNutNFT(owner);
     await mintNutNFT(addr1);
@@ -14,6 +22,10 @@ describe('Nut', function () {
     expect(await nut.balanceOf(owner.address)).to.equal(1);
     expect(await nut.balanceOf(addr1.address)).to.equal(1);
     expect(await nut.id()).to.equal(2);
+
+    expect(parseInt(await getAddressBalance(nut.address))).to.equal(
+      mint_price * 2
+    );
   });
 
   it('getTokensOwnedBy() should return token ids that are owned by the given addresss', async function () {
