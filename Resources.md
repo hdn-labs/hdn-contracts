@@ -10,10 +10,16 @@
   - [#2 cheatsheet](https://manojpramesh.github.io/solidity-cheatsheet/)
   - [#3 cheatsheet](https://cdn.hashnode.com/res/hashnode/image/upload/v1648806727395/tk7laP50n.jpg?auto=compress,format&format=webp)
 - royalties
+  - [EIP-2981](https://eips.ethereum.org/EIPS/eip-2981)
+  - [openzepplin issue EIP-2981](https://github.com/OpenZeppelin/openzeppelin-contracts/issues/2789)
+  - [Opensea EIP-2981](https://github.com/alxrnz2/ERC1155-with-EIP2981-for-OpenSea#eip-2981-royalties)
+  - ["backdoor" around royalties](https://www.reddit.com/r/NFT/comments/l58zzg/question_about_nft_royalties/)
   - [can nfts generate royalties?](https://medium.com/metapherse/can-nfts-generate-royalties-cc652dd432a9)
   - [cryptomarketpool.com](https://cryptomarketpool.com/erc721-contract-that-supports-sales-royalties/)
-  - [openzepplin issue EIP-2981](https://github.com/OpenZeppelin/openzeppelin-contracts/issues/2789)
-  - [EIP-2981](https://github.com/alxrnz2/ERC1155-with-EIP2981-for-OpenSea#eip-2981-royalties)
+  - hedera's implementation
+    - [announcement](https://hedera.com/blog/new-hedera-token-service-features-nfts-metadata-and-custom-fees)
+    - [quickstart on custom token fees](https://hedera.com/blog/developer-quick-start-custom-token-fees)
+    - [token fees (royalties)](https://docs.hedera.com/guides/docs/sdks/tokens/custom-token-fees)
 - NFT Metadata Storage Tools
   - [intro](https://artynft.io/nft-granny/where-is-nft-art-stored/)
   - [nft storage](https://nft.storage/)
