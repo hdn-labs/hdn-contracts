@@ -68,15 +68,13 @@ contract Astronut is ERC721 {
         if(!claimant.isValid()) return;
 
         uint256 pending = 0;
-        uint256 total = 0;
 
         if(!_isFirstTimeOwner(claimant)) {
             pending = getPendingRewardsFor(claimant);
-            total = rewards[claimant].totalRewards;
         }
 
         //update rewards state for next claim
-        rewards[claimant] = yieldContract.createNftOwnerRewards(pending, total);
+        rewards[claimant] = yieldContract.createNftOwnerRewards(pending);
     }
 
     function claimRewardsFor(address claimant) public {
@@ -88,8 +86,7 @@ contract Astronut is ERC721 {
         tokenContract.collectReward(claimant, pending);
 
         // update rewards state for next claim
-        uint256 total = rewards[claimant].totalRewards + pending;
-        rewards[claimant] = yieldContract.createNftOwnerRewards(0, total);
+        rewards[claimant] = yieldContract.createNftOwnerRewards(0);
     }
 
     /**

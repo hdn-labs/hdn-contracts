@@ -7,11 +7,10 @@ interface IYield {
     struct NftOwnerRewards {
         uint256 indexOfLastUpdate;
         uint256 pendingRewards;
-        uint256 totalRewards;
     }
 
     function yield(uint256 _timeOfLastUpdate, uint256 _balance) external view returns (uint256);
-    function createNftOwnerRewards(uint256 pending, uint256 total) external view returns (NftOwnerRewards memory);
+    function createNftOwnerRewards(uint256 pending) external view returns (NftOwnerRewards memory);
 }
 
 contract AstronutYielder is IYield {
@@ -34,8 +33,8 @@ contract AstronutYielder is IYield {
         return _yield(current.sub(lastUpdate)).mul(balance);
     }
 
-    function createNftOwnerRewards(uint256 pending, uint256 total) external view override returns (NftOwnerRewards memory) {
-        return NftOwnerRewards(_getCurrentIndex(), pending, total);
+    function createNftOwnerRewards(uint256 pending) external view override returns (NftOwnerRewards memory) {
+        return NftOwnerRewards(_getCurrentIndex(), pending);
     }
 
     function _getCurrentIndex() internal view returns (uint256) {
