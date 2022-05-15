@@ -159,4 +159,10 @@ describe('Nut', function () {
     const [_, addr1] = await ethers.getSigners();
     await expect(nut.connect(addr1).mint()).to.be.reverted;
   });
+
+  /** possible tests
+   *
+   * _updateRewardsFor() should not update rewards for receipent of NFT transfer if the transfer fails
+   *
+   */
 });
