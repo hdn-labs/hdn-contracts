@@ -57,8 +57,6 @@ contract Astronut is ERC721 {
     mapping(address => IYield.NftOwnerRewards) public rewards;
 
     function getPendingRewardsFor(address claimant) public view returns(uint256) {
-        require(claimant.isValid(), "claimant must be a valid address");
-
         if(_isFirstTimeOwner(claimant)) return 0;
         uint256 pending = yieldContract.yield(rewards[claimant].indexOfLastUpdate, balanceOf(claimant));
         return pending + rewards[claimant].pendingRewards;
@@ -67,11 +65,7 @@ contract Astronut is ERC721 {
     function _updateRewardsFor(address claimant) internal {
         if(!claimant.isValid()) return;
 
-        uint256 pending = 0;
-
-        if(!_isFirstTimeOwner(claimant)) {
-            pending = getPendingRewardsFor(claimant);
-        }
+        uint256 pending = getPendingRewardsFor(claimant);
 
         //update rewards state for next claim
         rewards[claimant] = yieldContract.createNftOwnerRewards(pending);
