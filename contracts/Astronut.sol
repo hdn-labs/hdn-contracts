@@ -79,21 +79,17 @@ contract Astronut is ERC721 {
         rewards[claimant] = yieldContract.createNftOwnerRewards(pending, total);
     }
 
-    function claimRewardsFor(address claimant) public returns(uint256) {
+    function claimRewardsFor(address claimant) public {
         require(msg.sender == claimant, "cannot claim for another address");
-        require(claimant.isValid(), "address is invalid");
-        require(getPendingRewardsFor(claimant) > 0, "no rewards available");
-
         uint256 pending = getPendingRewardsFor(claimant);
-        uint256 total = rewards[claimant].totalRewards + pending;
+        require(pending > 0, "no rewards available");
 
         // send pending to address
         tokenContract.collectReward(claimant, pending);
 
         // update rewards state for next claim
+        uint256 total = rewards[claimant].totalRewards + pending;
         rewards[claimant] = yieldContract.createNftOwnerRewards(0, total);
-
-        return pending;
     }
 
     /**
