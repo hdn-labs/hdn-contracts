@@ -18,9 +18,7 @@ describe('HDN', function () {
     expect(await hdn.balanceOf(owner.address)).to.equal(0);
     //const original_total_supply = await hdn.totalSupply().toString();
     const amount = 1000;
-    await await hdn
-      .connect(owner)
-      .transferFrom(hdn.address, owner.address, amount);
+    await await hdn.connect(owner).mint(owner.address, amount);
     //expect(original_total_supply).to.equal(amount);
     expect(await hdn.balanceOf(owner.address)).to.equal(amount);
   });
@@ -30,9 +28,7 @@ describe('HDN', function () {
     const [owner, addr1] = await ethers.getSigners();
 
     const amount = 1000;
-    await await hdn
-      .connect(owner)
-      .transferFrom(hdn.address, owner.address, amount);
+    await await hdn.connect(owner).mint(owner.address, amount);
 
     await await hdn.connect(owner).transfer(addr1.address, 250);
 
