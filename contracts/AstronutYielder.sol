@@ -31,7 +31,7 @@ contract AstronutYielder is IYield {
 
     function yield(uint256 lastUpdate, uint256 balance) external view override returns (uint256) {
         uint256 current = _min(_getCurrentIndex(), END);
-        return _yield(current - lastUpdate).mul(balance);
+        return _yield(current.sub(lastUpdate)).mul(balance);
     }
 
     function createNftOwnerRewards(uint256 pending, uint256 total) external view override returns (NftOwnerRewards memory) {
