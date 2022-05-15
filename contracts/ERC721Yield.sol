@@ -73,7 +73,7 @@ abstract contract ERC721Yield is ERC721 {
         address from,
         address to,
         uint256 tokenId
-    ) internal override {
+    ) internal virtual override {
         // update all pending rewards before transfer
         _updateRewardsFor(from);
         _updateRewardsFor(to);
