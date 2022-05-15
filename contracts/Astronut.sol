@@ -11,9 +11,9 @@ contract Astronut is ERC721 {
     using SafeMath for uint;
     using AddressHelper for address;
 
-    IYield yieldContract;
-    HDNToken tokenContract;
     uint256 public id;
+    IYield private yieldContract;
+    HDNToken private tokenContract;
     uint56 private mintPrice;
     uint56 private maxTokens;
     mapping(address => uint256[]) private owners;
