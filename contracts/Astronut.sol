@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./AddressHelper.sol";
 import "./AstronutYielder.sol";
-import "./HDN_ERC20.sol";
+import "./HDN.sol";
 
 contract Astronut is ERC721 {
     using SafeMath for uint;
@@ -57,11 +57,10 @@ contract Astronut is ERC721 {
     mapping(address => IYield.NftOwnerRewards) public rewards;
 
     function getPendingRewardsFor(address claimant) public view returns(uint256) {
-        if(!claimant.isValid()) return 0;
+        require(claimant.isValid(), "claimant must be a valid address");
+
         if(_isFirstTimeOwner(claimant)) return 0;
-
         uint256 pending = yieldContract.yield(rewards[claimant].indexOfLastUpdate, balanceOf(claimant));
-
         return pending + rewards[claimant].pendingRewards;
     }
 

@@ -9,7 +9,7 @@ contract HDNToken is ERC20, AccessControl {
 
     constructor() ERC20("HodlDeezNuts", "HDN") {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _mint(address(this), 100_000 ether);
+        _mint(address(this), 50_000_000_000 ether);
         grantTreasury(msg.sender);
     }
 
