@@ -11,7 +11,7 @@ contract HDNToken is ERC20Capped, AccessControl, ITreasury {
 
     constructor() 
         ERC20("HodlDeezNuts", "HDN") 
-        ERC20Capped(50_000_000_000 ether) {
+        ERC20Capped(50_000_000_000 * 10 ** 18) {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         grantTreasury(msg.sender);
     }
