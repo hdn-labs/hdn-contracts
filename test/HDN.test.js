@@ -11,17 +11,21 @@ describe('HDN', function () {
     expect(await hdn.name()).to.equal('HodlDeezNuts');
   });
 
-  it('treasurer should be able to collect tokens from HDN contract', async function () {
+  it('cap() should be 50_000_000_000', async function () {
+    const { hdn } = await create();
+    const cap = (await hdn.cap()).toString();
+    expect(parseInt(ethers.utils.formatEther(cap))).to.equal(50_000_000_000);
+  });
+
+  it('treasurer should be allowed to mint HDN', async function () {
     const { hdn } = await create();
     const [owner] = await ethers.getSigners();
 
     expect(await hdn.balanceOf(owner.address)).to.equal(0);
-    //const original_total_supply = await hdn.totalSupply().toString();
+
     const amount = 1000;
-    await await hdn
-      .connect(owner)
-      .transferFrom(hdn.address, owner.address, amount);
-    //expect(original_total_supply).to.equal(amount);
+    await await hdn.connect(owner).mint(owner.address, amount);
+
     expect(await hdn.balanceOf(owner.address)).to.equal(amount);
   });
 
@@ -30,10 +34,7 @@ describe('HDN', function () {
     const [owner, addr1] = await ethers.getSigners();
 
     const amount = 1000;
-    await await hdn
-      .connect(owner)
-      .transferFrom(hdn.address, owner.address, amount);
-
+    await await hdn.connect(owner).mint(owner.address, amount);
     await await hdn.connect(owner).transfer(addr1.address, 250);
 
     expect(await hdn.balanceOf(owner.address)).to.equal(750);

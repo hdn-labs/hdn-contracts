@@ -2,23 +2,25 @@
 pragma solidity ^0.8.6;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
+import "./ITreasury.sol";
 
-contract HDNToken is ERC20, AccessControl {
+contract HDNToken is ERC20Capped, AccessControl, ITreasury {
     bytes32 public constant TREASURY_ROLE = keccak256("TREASURY_ROLE");
 
-    constructor() ERC20("HodlDeezNuts", "HDN") {
+    constructor() 
+        ERC20("HodlDeezNuts", "HDN") 
+        ERC20Capped(50_000_000_000 * 10 ** 18) {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _mint(address(this), 50_000_000_000 ether);
         grantTreasury(msg.sender);
     }
 
-    function collectReward(address _to, uint256 amt) external onlyRole(TREASURY_ROLE) {
-        transferFrom(address(this), _to, amt);
+    function mint(address to, uint256 amt) override external onlyRole(TREASURY_ROLE) {
+        _mint(to, amt);
     }
 
     function grantTreasury(address _to) public onlyRole(DEFAULT_ADMIN_ROLE) {
         _grantRole(TREASURY_ROLE, _to);
-        _approve(address(this), _to, totalSupply());
     }
 }
