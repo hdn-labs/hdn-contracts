@@ -5,13 +5,13 @@ const {
   increase_time,
   increase_time_by_days,
   getAddressBalance,
+  setBlockToEndOfYield,
   mint_price,
 } = require('./helper');
 
 describe('Nut', function () {
   it('mint() should send ERC71 tokens to their respective minters and minters should pay the mint price', async function () {
     const { nut, mintNutNFT } = await create();
-
     const [owner, addr1] = await ethers.getSigners();
 
     expect(await getAddressBalance(nut.address)).to.equal('0.0');
@@ -28,7 +28,7 @@ describe('Nut', function () {
     );
   });
 
-  it('getTokensOwnedBy() should return token ids that are owned by the given addresss', async function () {
+  /* it('getTokensOwnedBy() should return token ids that are owned by the given addresss', async function () {
     const { nut, mintNutNFT } = await create();
 
     const [owner, addr1] = await ethers.getSigners();
@@ -40,7 +40,7 @@ describe('Nut', function () {
     expect(
       (await nut.getTokensOwnedBy(owner.address)).map((b) => b.toNumber())
     ).to.eql([0, 2]);
-  });
+  }); */
 
   it('getPendingRewardsFor() should show 10 tokens per day being accrued', async function () {
     const { nut, mintNutNFT } = await create();
@@ -94,7 +94,6 @@ describe('Nut', function () {
 
   it('getPendingRewardsFor() should properly calculate rewards after transfer', async function () {
     const { nut, mintNutNFT } = await create();
-
     const [owner, addr1] = await ethers.getSigners();
 
     await mintNutNFT(owner);
@@ -123,16 +122,11 @@ describe('Nut', function () {
 
   it('claimRewardsFor() should transfer accurate amount of HDN rewards to nft owners', async function () {
     const { nut, mintNutNFT, hdn } = await create();
-
     const [owner, addr1] = await ethers.getSigners();
 
     await mintNutNFT(owner);
-
     await increase_time_by_days(5);
-
-    let txn2 = await nut.transferFrom(owner.address, addr1.address, 0);
-    await txn2.wait();
-
+    await await nut.transferFrom(owner.address, addr1.address, 0);
     await increase_time_by_days(10);
 
     /** balances should be correct */
@@ -144,9 +138,59 @@ describe('Nut', function () {
     expect(await getPendingRewardsFor(owner.address)).to.equal(50);
     expect(await getPendingRewardsFor(addr1.address)).to.equal(100);
 
-    /** owned tokens after claiming rewards should be correct */
+    /** claim the rewards */
     await nut.connect(owner).claimRewardsFor(owner.address);
     await nut.connect(addr1).claimRewardsFor(addr1.address);
+
+    /** balances should match rewards claimed */
+    expect(await hdnBalanceOf(owner.address)).to.equal(50);
+    expect(await hdnBalanceOf(addr1.address)).to.equal(100);
+
+    async function getPendingRewardsFor(address) {
+      let txn = await nut.getPendingRewardsFor(address);
+      return parseInt(ethers.utils.formatEther(txn));
+    }
+
+    async function hdnBalanceOf(address) {
+      let txn = await hdn.connect(address).balanceOf(address);
+      return parseInt(ethers.utils.formatEther(txn));
+    }
+  });
+
+  it('claimRewardsFor() should not generate rewards after END time', async function () {
+    const { nut, mintNutNFT, hdn } = await create();
+    const [owner, addr1] = await ethers.getSigners();
+
+    /** rewards should be zero */
+    expect(await getPendingRewardsFor(owner.address)).to.equal(0);
+    expect(await getPendingRewardsFor(addr1.address)).to.equal(0);
+
+    /** mint to different owners and wait some time for rewards to accrue */
+    await mintNutNFT(owner);
+    await mintNutNFT(addr1);
+
+    /** sets the block to the end timestamp when yielding ends */
+    await setBlockToEndOfYield();
+
+    /** nft balances should be correct */
+    expect(await nut.balanceOf(owner.address)).to.equal(1);
+    expect(await nut.balanceOf(addr1.address)).to.equal(1);
+    expect(await nut.id()).to.equal(2, 'unexpected amount of nfts');
+
+    /** rewards should be greater than zero */
+    expect(await getPendingRewardsFor(owner.address)).to.greaterThan(0);
+    expect(await getPendingRewardsFor(addr1.address)).to.greaterThan(0);
+
+    /** claim the rewards to drain pending buckets */
+    await nut.connect(owner).claimRewardsFor(owner.address);
+    await nut.connect(addr1).claimRewardsFor(addr1.address);
+
+    /** no rewards should accrue over this time */
+    await increase_time_by_days(10);
+
+    /** pending rewards should be zero */
+    expect(await getPendingRewardsFor(owner.address)).to.equal(0);
+    expect(await getPendingRewardsFor(addr1.address)).to.equal(0);
 
     async function getPendingRewardsFor(address) {
       let txn = await nut.getPendingRewardsFor(address);
@@ -160,9 +204,9 @@ describe('Nut', function () {
     await expect(nut.connect(addr1).mint()).to.be.reverted;
   });
 
-  /** possible tests
+  /**
+   * possible tests
    *
-   * _updateRewardsFor() should not update rewards for receipent of NFT transfer if the transfer fails
-   *
+   * _updateRewardsFor() should not update rewards for receipent of NFT transfer if the transfer fails*
    */
 });

@@ -35,19 +35,21 @@ abstract contract ERC721Yield is ERC721 {
 
         // send pending to address
         treasury.mint(claimant, pending);
-        rewards[claimant] = NftOwnerRewards(_getCurrentIndex(), 0);
+        _resetClaimantState(claimant, 0);
     }
 
     function getPendingRewardsFor(address claimant) public view returns(uint256) {
-        if(rewards[claimant].indexOfLastUpdate <= 0) return 0;
-        uint256 pending = yield(rewards[claimant].indexOfLastUpdate, this.balanceOf(claimant));
+        uint256 lastUpdate = rewards[claimant].indexOfLastUpdate;
+        if(lastUpdate <= 0) return 0;
+        uint256 pending = yield(lastUpdate, ERC721.balanceOf(claimant));
         return pending + rewards[claimant].pendingRewards;
     }
 
     function yield(uint256 lastUpdate, uint256 balance) internal view returns (uint256) {
         uint256 current = _min(_getCurrentIndex(), endTime);
+        if(current < lastUpdate) return 0;
         uint256 lapsedTime = current.sub(lastUpdate);
-        return lapsedTime.mul(baseRate).mul(balance).div(SECONDS_IN_A_DAY);
+        return baseRate.mul(lapsedTime.mul(balance)).div(SECONDS_IN_A_DAY);
     }
 
     function _min(uint256 a, uint256 b) private pure returns (uint256) {
@@ -61,7 +63,11 @@ abstract contract ERC721Yield is ERC721 {
     function _updateRewardsFor(address claimant) internal {
         if(!claimant.isValid()) return;
         uint256 pending = getPendingRewardsFor(claimant);
-        rewards[claimant] = NftOwnerRewards(_getCurrentIndex(), pending);
+        _resetClaimantState(claimant, pending);
+    }
+
+    function _resetClaimantState(address claimant, uint256 amt) internal {
+        rewards[claimant] = NftOwnerRewards(_min(_getCurrentIndex(), endTime), amt);
     }
 
     /**

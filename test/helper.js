@@ -1,4 +1,7 @@
-const { SignerWithAddress } = require('@nomiclabs/hardhat-ethers/signers');
+/** references:
+ *   - https://hardhat.org/hardhat-network/reference/
+ */
+
 const { ethers } = require('hardhat');
 
 /**
@@ -16,6 +19,7 @@ async function deploy(id, ...args) {
 
 const mint_price = 500;
 const mint_price_ethers = ethers.utils.parseEther(mint_price.toString());
+const end_time = 1931622407;
 
 const ROLES = {
   //web3.utils.soliditySha3('DELEGATE_ROLE')
@@ -34,6 +38,8 @@ module.exports = {
   mineNBlocks,
   getLatestBlock,
   getAddressBalance,
+  setNextBlockTimestamp,
+  setBlockToEndOfYield,
   mint_price_ethers,
   mint_price,
   create: async function () {
@@ -90,6 +96,21 @@ async function mineNBlocks(n) {
 
 async function getLatestBlock() {
   await ethers.provider.getBlock('latest');
+}
+
+/**
+ * sets the next timestamp and mines to that block
+ * @param {int} timestamp in seconds e.g. 1931622407 * 1000 (=> 3/18/2031, 1:46:47 PM), new Date('3/18/2031, 1:46:47 PM').getTime() [javascript returns in milliseconds, blockchain is in seconds]
+ */
+async function setNextBlockTimestamp(timestamp) {
+  await ethers.provider.send('evm_setNextBlockTimestamp', [timestamp]);
+  await ethers.provider.send('evm_mine');
+}
+
+async function setBlockToEndOfYield() {
+  //console.log(new Date(end_time * 1000).toLocaleString());
+  await setNextBlockTimestamp(end_time * 1000);
+  //console.log((await ethers.provider.getBlock()).timestamp, end_time * 1000);
 }
 
 async function getAddressBalance(address) {
