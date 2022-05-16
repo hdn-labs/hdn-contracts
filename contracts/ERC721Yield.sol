@@ -18,7 +18,7 @@ abstract contract ERC721Yield is ERC721 {
 
     struct NftOwnerRewards {
         uint256 indexOfLastUpdate;
-        uint256 pendingRewards;
+        uint256 rewards;
     }
     mapping(address => NftOwnerRewards) public rewards;
 
@@ -41,12 +41,12 @@ abstract contract ERC721Yield is ERC721 {
     function getPendingRewardsFor(address claimant) public view returns(uint256) {
         uint256 lastUpdate = rewards[claimant].indexOfLastUpdate;
         if(lastUpdate <= 0) return 0;
-        uint256 pending = yield(lastUpdate, ERC721.balanceOf(claimant));
-        return pending + rewards[claimant].pendingRewards;
+        uint256 pending = _calculateYield(lastUpdate, ERC721.balanceOf(claimant));
+        return pending + rewards[claimant].rewards;
     }
 
-    function yield(uint256 lastUpdate, uint256 balance) internal view returns (uint256) {
-        uint256 current = _min(_getCurrentIndex(), endTime);
+    function _calculateYield(uint256 lastUpdate, uint256 balance) internal view returns (uint256) {
+        uint256 current = _getCurrentIndex();
         if(current < lastUpdate) return 0;
         uint256 lapsedTime = current.sub(lastUpdate);
         return baseRate.mul(lapsedTime.mul(balance)).div(SECONDS_IN_A_DAY);
@@ -57,7 +57,7 @@ abstract contract ERC721Yield is ERC721 {
     }
 
     function _getCurrentIndex() private view returns (uint256) {
-        return block.timestamp;
+        return _min(block.timestamp, endTime);
     }
 
     function _updateRewardsFor(address claimant) internal {
@@ -67,7 +67,7 @@ abstract contract ERC721Yield is ERC721 {
     }
 
     function _resetClaimantState(address claimant, uint256 amt) internal {
-        rewards[claimant] = NftOwnerRewards(_min(_getCurrentIndex(), endTime), amt);
+        rewards[claimant] = NftOwnerRewards(_getCurrentIndex(), amt);
     }
 
     /**
