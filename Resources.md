@@ -39,3 +39,5 @@
   - [nft contract 2](https://betterprogramming.pub/how-to-create-nfts-with-solidity-4fa1398eb70a)
 - [generating nfts/metadata from nft layers](https://github.com/HashLips/hashlips_art_engine)
 - [formatting ether units](https://docs.ethers.io/v5/api/utils/display-logic/#utils-formatEther)
+- Audits
+  - [iex audit](https://blog.openzeppelin.com/iex-ec-rlc-token-audit-80abd763709b/)

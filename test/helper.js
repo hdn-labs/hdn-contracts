@@ -40,6 +40,7 @@ module.exports = {
   getAddressBalance,
   setNextBlockTimestamp,
   setBlockToEndOfYield,
+  getBlockTimestamp,
   mint_price_ethers,
   mint_price,
   create: async function () {
@@ -111,6 +112,14 @@ async function setBlockToEndOfYield() {
   //console.log(new Date(end_time * 1000).toLocaleString());
   await setNextBlockTimestamp(end_time * 1000);
   //console.log((await ethers.provider.getBlock()).timestamp, end_time * 1000);
+}
+
+/**
+ *
+ * @returns {number} timestamp in seconds
+ */
+async function getBlockTimestamp() {
+  return (await ethers.provider.getBlock()).timestamp;
 }
 
 async function getAddressBalance(address) {
