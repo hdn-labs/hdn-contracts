@@ -41,15 +41,18 @@ abstract contract ERC721Yield is ERC721 {
     function getPendingRewardsFor(address claimant) public view returns(uint256) {
         uint256 lastUpdate = rewards[claimant].indexOfLastUpdate;
         if(lastUpdate <= 0) return 0;
-        uint256 pending = _calculateYield(lastUpdate, ERC721.balanceOf(claimant));
-        return pending + rewards[claimant].rewards;
-    }
-
-    function _calculateYield(uint256 lastUpdate, uint256 balance) internal view returns (uint256) {
         uint256 current = _getCurrentIndex();
         if(current < lastUpdate) return 0;
+        uint256 balance = ERC721.balanceOf(claimant);
+        uint256 accrued = rewards[claimant].rewards;
+        if(balance < 1) return accrued;
         uint256 lapsedTime = current.sub(lastUpdate);
-        return baseRate.mul(lapsedTime.mul(balance)).div(SECONDS_IN_A_DAY);
+        uint256 pending = _calculateYield(baseRate, lapsedTime, balance);
+        return pending + accrued;
+    }
+
+    function _calculateYield(uint256 base, uint256 lapsedTime, uint256 balance) private pure returns (uint256) {
+        return base.mul(lapsedTime.mul(balance)).div(SECONDS_IN_A_DAY);
     }
 
     function _min(uint256 a, uint256 b) private pure returns (uint256) {
