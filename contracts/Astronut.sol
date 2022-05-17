@@ -1,13 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.6;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./ERC721Yield.sol";
 
 contract Astronut is ERC721Yield {
-    using SafeMath for uint;
-    using AddressHelper for address;
-
     uint256 public id;
     uint56 private mintPrice;
     uint56 private immutable maxTokens;
