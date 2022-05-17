@@ -48,7 +48,7 @@ module.exports = {
 
     const nut = await deploy('Astronut', hdn.address, mint_price);
     const [owner] = await ethers.getSigners();
-    await await hdn.connect(owner).grantTreasury(nut.address);
+    await await hdn.connect(owner).grantRole(ROLES.TREASURY_ROLE, nut.address);
 
     return {
       hdn,

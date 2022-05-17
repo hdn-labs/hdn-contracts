@@ -12,14 +12,10 @@ contract HDNToken is ERC20Capped, AccessControl, ITreasury {
         ERC20("HodlDeezNuts", "HDN") 
         ERC20Capped(50_000_000_000 * 10 ** 18) {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        grantTreasury(msg.sender);
+        _grantRole(TREASURY_ROLE, msg.sender);
     }
 
     function mint(address to, uint256 amt) override external onlyRole(TREASURY_ROLE) {
         _mint(to, amt);
-    }
-
-    function grantTreasury(address _to) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        _grantRole(TREASURY_ROLE, _to);
     }
 }
