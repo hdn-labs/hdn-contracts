@@ -44,14 +44,18 @@ module.exports = {
   mint_price_ethers,
   mint_price,
   create: async function () {
-    const [hdn] = await Promise.all([deploy('HDNToken')]);
+    const hdn = await deploy('HDNToken');
+    const yield = await deploy('YieldManager', hdn.address);
+    const nut = await deploy('Astronut', yield.address, mint_price);
 
-    const nut = await deploy('Astronut', hdn.address, mint_price);
     const [owner] = await ethers.getSigners();
-    await await hdn.connect(owner).grantRole(ROLES.TREASURY_ROLE, nut.address);
+    await await hdn
+      .connect(owner)
+      .grantRole(ROLES.TREASURY_ROLE, yield.address);
 
     return {
       hdn,
+      yield,
       nut,
       grantRole,
       mintNutNFT,
