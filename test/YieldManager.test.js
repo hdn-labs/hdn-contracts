@@ -167,6 +167,16 @@ describe('YieldManager', function () {
     }
   });
 
+  it('setYieldParameters() should revert if called by an address that is not setting its own parameters', async function () {
+    const { yield } = await create();
+    const [owner, addr1] = await ethers.getSigners();
+
+    await expect(
+      yield.connect(owner).setYieldParameters(addr1.address, 10, 12345)
+    ).to.be.revertedWith('unauthorized state update');
+  });
+
+  //it('', async function () {});
   /**
    * possible tests
    *

@@ -6,17 +6,15 @@ import {IYieldManager} from "./YieldManager.sol";
 
 abstract contract ERC721Yield is ERC721 {
 
-    IYieldManager private yield;
+    IYieldManager internal yield;
 
     constructor(address _yield) {
         yield = IYieldManager(_yield);
-        yield.setYieldParameters(address(this), 10 ether, 1931622407);
     }
 
-    /**
-        this will be called when minting, transferring, or burning
-        when minting, "from" will be address(0)
-        when burning, "to" will be address(0)
+    /** @dev this will be called when minting, transferring, or burning
+        @dev when minting, "from" will be address(0)
+        @dev when burning, "to" will be address(0)
     */
     function _beforeTokenTransfer(
         address from,

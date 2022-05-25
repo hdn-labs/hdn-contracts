@@ -39,15 +39,21 @@ contract YieldManager is IYieldManager {
         treasury = ITreasury(_treasury);
     }
 
-    /** @dev nft tokens can set their yield parameters
-      * @param token the nft token
+    /** @notice set parameters for yielding tokens
+      * @dev tokens can only set the state for themselves and only approved addresses can execute this function
+      * @param token the token that yields HDN
       * @param rate HDN that is accumulated over time (amount/day)
       * @param end the end date when rewards stop accruing (seconds)
       */
     function setYieldParameters(address token, uint256 rate, uint256 end) override external {
+        require(msg.sender == token, "unauthorized state update");
         parameters[token] = YieldParameters(rate, end);
     }
 
+    /** @notice claim rewards for the given address and the associated NFT smart contract
+      * @param token the yielding token address which the claimant owns
+      * @param claimant the owner of the yielding token who has accrued rewards
+     */
     function claimRewardsFor(address token, address claimant) public {
         require(msg.sender == claimant, "cannot claim for another address");
         uint256 pending = getPendingRewardsFor(token, claimant);
@@ -58,6 +64,11 @@ contract YieldManager is IYieldManager {
         treasury.mint(claimant, pending);
     }
 
+    /** @notice update rewards on relevant events, such as minting, transfer, or burn
+      * @dev this should be added to an overwritten _beforeTokenTransfer  in ERC721
+      * @param token the yielding token address which the claimant owns
+      * @param claimant the owner of the yielding token who has accrued rewards
+     */
     function updateRewardsFor(address token, address claimant) override external {
         require(msg.sender == token, "unauthorized state update");
         if(!claimant.isValid()) return;
@@ -65,6 +76,10 @@ contract YieldManager is IYieldManager {
         _resetClaimantState(token, claimant, pending);
     }
 
+    /** @notice view the rewards pending for a given claimant
+      * @param token the yielding token address which the claimant owns
+      * @param claimant the owner of the yielding token who has accrued rewards
+     */
     function getPendingRewardsFor(address token, address claimant) public view returns(uint256) {
         AccruedRewards storage _rewards = rewards[token][claimant];
 

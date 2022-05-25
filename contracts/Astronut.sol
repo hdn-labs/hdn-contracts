@@ -16,6 +16,8 @@ contract Astronut is ERC721Yield {
         mintPrice = _mintPrice;
         id = 0;
         maxTokens = 100;
+
+        yield.setYieldParameters(address(this), 10 ether, 1931622407);
     }
 
     error InsufficientFunds();
