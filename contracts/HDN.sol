@@ -3,7 +3,10 @@ pragma solidity ^0.8.6;
 
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "./ITreasury.sol";
+
+interface ITreasury {
+    function mint(address to, uint256 amt) external;
+}
 
 contract HDNToken is ERC20Capped, AccessControl, ITreasury {
     bytes32 public constant TREASURY_ROLE = keccak256("TREASURY_ROLE");

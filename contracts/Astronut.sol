@@ -9,10 +9,10 @@ contract Astronut is ERC721Yield {
     uint56 private immutable maxTokens;
 
     constructor(
-        address _treasury,
+        address _yield,
         uint56 _mintPrice) 
         ERC721("DeezAstronuts", "HDNA")
-        ERC721Yield(_treasury, 10 ether, 1931622407) {
+        ERC721Yield(_yield) {
         mintPrice = _mintPrice;
         id = 0;
         maxTokens = 100;
@@ -32,7 +32,6 @@ contract Astronut is ERC721Yield {
         payable
         meetsMintPrice() {
         require(id < maxTokens, "all astronuts have been minted");
-
         _safeMint(msg.sender, id);
         id++;
     }
