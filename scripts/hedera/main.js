@@ -98,12 +98,12 @@ async function mintNutNFT(acnt) {
 /**
  * @param {accounts.AccountHelper} acnt
  */
-async function getPendingRewardsFor(acnt) {
+async function getPendingRewards(acnt) {
   const provider = hethers.providers.getDefaultProvider('testnet');
   const wallet = acnt.asWallet(provider);
   console.log((await wallet.getBalance()).toString());
   const contract = getNutNFTContract(wallet);
-  const result = await contract.getPendingRewardsFor(wallet.address, {
+  const result = await contract.getPendingRewards(wallet.address, {
     gasLimit: 1_000_000,
   });
   console.log(result);
@@ -117,7 +117,7 @@ checkHDNBalance(accounts.signer);
 //createAccount(1000);
 //deployNFTContract();
 //mintNutNFT(accounts.signer);
-getPendingRewardsFor(accounts.signer)
+getPendingRewards(accounts.signer)
   .then((r) => console.log(hethers.utils.formatUnits(r, 18)))
   .catch(console.error);
 

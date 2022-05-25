@@ -8,9 +8,9 @@ import {ITreasury} from "./HDN.sol";
 import "./AddressHelper.sol";
 
 interface IYieldManager {
-    function updateRewardsFor(address yieldToken, address claimant) external;
+    function updateRewards(address yieldToken, address claimant) external;
     function setYieldParameters(address yieldToken, uint256 rate, uint256 end) external;
-    function claimRewardsFor(address yieldToken, address claimant) external;
+    function claimRewards(address yieldToken, address claimant) external;
 }
 
 contract YieldManager is AccessControl, IYieldManager {
@@ -23,7 +23,7 @@ contract YieldManager is AccessControl, IYieldManager {
     ITreasury private treasury;
 
     struct YieldParameters {
-        /// @dev rate of HDN rewarded (amount/day)
+        /// @dev rate of HDN rewarded (wei/day)
         uint256 rate;
         /// @dev date when rewards will stop accruing (seconds)
         uint256 end;
@@ -32,7 +32,7 @@ contract YieldManager is AccessControl, IYieldManager {
     struct AccruedRewards {
         /// @dev last time rewards were recorded (seconds)
         uint256 indexOfLastUpdate;
-        /// @dev amount of rewards recorded (HDN)
+        /// @dev amount of rewards recorded (wei)
         uint256 accrued;
     }
 
@@ -47,7 +47,7 @@ contract YieldManager is AccessControl, IYieldManager {
     /** @notice set parameters for yielding tokens
       * @dev tokens can only set the state for themselves and only approved addresses can execute this function
       * @param yieldToken the token that yields HDN
-      * @param rate HDN that is accumulated over time (amount/day)
+      * @param rate HDN that is accumulated over time (wei/day)
       * @param end the end date when rewards stop accruing (seconds)
       */
     function setYieldParameters(address yieldToken, uint256 rate, uint256 end) override external onlyRole(DEFAULT_ADMIN_ROLE) {
@@ -58,9 +58,9 @@ contract YieldManager is AccessControl, IYieldManager {
       * @param yieldToken the yielding token address which the claimant owns
       * @param claimant the owner of the yielding token who has accrued rewards
      */
-    function claimRewardsFor(address yieldToken, address claimant) override external {
+    function claimRewards(address yieldToken, address claimant) override external {
         require(msg.sender == claimant, "cannot claim for another address");
-        uint256 pending = getPendingRewardsFor(yieldToken, claimant);
+        uint256 pending = getPendingRewards(yieldToken, claimant);
         require(pending > 0, "no rewards available");
 
         _resetClaimantState(yieldToken, claimant, 0);
@@ -73,10 +73,10 @@ contract YieldManager is AccessControl, IYieldManager {
       * @param yieldToken the yielding token address which the claimant owns
       * @param claimant the owner of the yielding token who has accrued rewards
      */
-    function updateRewardsFor(address yieldToken, address claimant) override external onlyRole(YIELD_ROLE) {
+    function updateRewards(address yieldToken, address claimant) override external onlyRole(YIELD_ROLE) {
         require(msg.sender == yieldToken, "unauthorized state update");
         if(!claimant.isValid()) return;
-        uint256 pending = getPendingRewardsFor(yieldToken, claimant);
+        uint256 pending = getPendingRewards(yieldToken, claimant);
         _resetClaimantState(yieldToken, claimant, pending);
     }
 
@@ -84,7 +84,7 @@ contract YieldManager is AccessControl, IYieldManager {
       * @param yieldToken the yielding token address which the claimant owns
       * @param claimant the owner of the yielding token who has accrued rewards
      */
-    function getPendingRewardsFor(address yieldToken, address claimant) public view returns(uint256) {
+    function getPendingRewards(address yieldToken, address claimant) public view returns(uint256) {
         AccruedRewards storage _rewards = rewards[yieldToken][claimant];
 
         uint256 lastUpdate = _rewards.indexOfLastUpdate;

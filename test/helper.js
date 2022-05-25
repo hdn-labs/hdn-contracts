@@ -36,7 +36,7 @@ module.exports = {
   ROLES,
   increase_time,
   increase_time_by_days: async function (days) {
-    increase_time(days * 24 * 60 * 60);
+    await increase_time(days * 24 * 60 * 60);
   },
   mineNBlocks,
   getLatestBlock,
