@@ -167,19 +167,30 @@ describe('YieldManager', function () {
     }
   });
 
-  it('setYieldParameters() should revert if called by an address that is not setting its own parameters', async function () {
+  it('setYieldParameters() should revert if called by an address that has not been granted proper role', async function () {
     const { yield } = await create();
-    const [owner, addr1] = await ethers.getSigners();
+    const [_, addr1] = await ethers.getSigners();
 
     await expect(
-      yield.connect(owner).setYieldParameters(addr1.address, 10, 12345)
-    ).to.be.revertedWith('unauthorized state update');
+      yield.connect(addr1.address).setYieldParameters(yield.address, 10, 12345)
+    ).to.be.reverted;
+  });
+
+  it('updateRewardsFor() should revert if called by an address that has not been granted proper role', async function () {
+    const { yield } = await create();
+    const [_, addr1] = await ethers.getSigners();
+
+    await expect(
+      yield
+        .connect(addr1.address)
+        .updateRewardsFor(yield.address, addr1.address)
+    ).to.be.reverted;
   });
 
   //it('', async function () {});
   /**
    * possible tests
    *
-   * _updateRewardsFor() should not update rewards for receipent of NFT transfer if the transfer fails*
+   * _updateRewardsFor() should not update rewards for recipient of NFT transfer if the transfer fails*
    */
 });

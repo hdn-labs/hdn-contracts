@@ -2,16 +2,20 @@
 pragma solidity ^0.8.6;
 
 import "@openzeppelin/contracts/interfaces/IERC721.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "./ITreasury.sol";
+import {ITreasury} from "./HDN.sol";
 import "./AddressHelper.sol";
 
 interface IYieldManager {
-    function updateRewardsFor(address token, address claimant) external;
-    function setYieldParameters(address token, uint256 rate, uint256 end) external;
+    function updateRewardsFor(address yieldToken, address claimant) external;
+    function setYieldParameters(address yieldToken, uint256 rate, uint256 end) external;
+    function claimRewardsFor(address yieldToken, address claimant) external;
 }
 
-contract YieldManager is IYieldManager {
+contract YieldManager is AccessControl, IYieldManager {
+    bytes32 public constant YIELD_ROLE = keccak256("YIELD_ROLE");
+
     using SafeMath for uint;
     using AddressHelper for address;
 
@@ -37,59 +41,59 @@ contract YieldManager is IYieldManager {
 
     constructor(address _treasury) {
         treasury = ITreasury(_treasury);
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
     /** @notice set parameters for yielding tokens
       * @dev tokens can only set the state for themselves and only approved addresses can execute this function
-      * @param token the token that yields HDN
+      * @param yieldToken the token that yields HDN
       * @param rate HDN that is accumulated over time (amount/day)
       * @param end the end date when rewards stop accruing (seconds)
       */
-    function setYieldParameters(address token, uint256 rate, uint256 end) override external {
-        require(msg.sender == token, "unauthorized state update");
-        parameters[token] = YieldParameters(rate, end);
+    function setYieldParameters(address yieldToken, uint256 rate, uint256 end) override external onlyRole(DEFAULT_ADMIN_ROLE) {
+        parameters[yieldToken] = YieldParameters(rate, end);
     }
 
     /** @notice claim rewards for the given address and the associated NFT smart contract
-      * @param token the yielding token address which the claimant owns
+      * @param yieldToken the yielding token address which the claimant owns
       * @param claimant the owner of the yielding token who has accrued rewards
      */
-    function claimRewardsFor(address token, address claimant) public {
+    function claimRewardsFor(address yieldToken, address claimant) override external {
         require(msg.sender == claimant, "cannot claim for another address");
-        uint256 pending = getPendingRewardsFor(token, claimant);
+        uint256 pending = getPendingRewardsFor(yieldToken, claimant);
         require(pending > 0, "no rewards available");
 
-        _resetClaimantState(token, claimant, 0);
+        _resetClaimantState(yieldToken, claimant, 0);
         /// @dev mint accrued rewards directly to claimant's address
         treasury.mint(claimant, pending);
     }
 
     /** @notice update rewards on relevant events, such as minting, transfer, or burn
-      * @dev this should be added to an overwritten _beforeTokenTransfer  in ERC721
-      * @param token the yielding token address which the claimant owns
+      * @dev this should be added to an overwritten _beforeTokenTransfer in ERC721
+      * @param yieldToken the yielding token address which the claimant owns
       * @param claimant the owner of the yielding token who has accrued rewards
      */
-    function updateRewardsFor(address token, address claimant) override external {
-        require(msg.sender == token, "unauthorized state update");
+    function updateRewardsFor(address yieldToken, address claimant) override external onlyRole(YIELD_ROLE) {
+        require(msg.sender == yieldToken, "unauthorized state update");
         if(!claimant.isValid()) return;
-        uint256 pending = getPendingRewardsFor(token, claimant);
-        _resetClaimantState(token, claimant, pending);
+        uint256 pending = getPendingRewardsFor(yieldToken, claimant);
+        _resetClaimantState(yieldToken, claimant, pending);
     }
 
     /** @notice view the rewards pending for a given claimant
-      * @param token the yielding token address which the claimant owns
+      * @param yieldToken the yielding token address which the claimant owns
       * @param claimant the owner of the yielding token who has accrued rewards
      */
-    function getPendingRewardsFor(address token, address claimant) public view returns(uint256) {
-        AccruedRewards storage _rewards = rewards[token][claimant];
+    function getPendingRewardsFor(address yieldToken, address claimant) public view returns(uint256) {
+        AccruedRewards storage _rewards = rewards[yieldToken][claimant];
 
         uint256 lastUpdate = _rewards.indexOfLastUpdate;
         if(lastUpdate <= 0) return 0;
 
-        YieldParameters storage params = parameters[token];
+        YieldParameters storage params = parameters[yieldToken];
         uint256 current = _getCurrentIndex(params.end);
         if(current < lastUpdate) return 0;
-        uint256 balance = IERC721(token).balanceOf(claimant);
+        uint256 balance = IERC721(yieldToken).balanceOf(claimant);
         if(balance < 1) return _rewards.accrued;
         uint256 lapsedTime = current.sub(lastUpdate);
         uint256 pending = _calculateYield(params.rate, lapsedTime, balance);
@@ -108,7 +112,7 @@ contract YieldManager is IYieldManager {
         return a < b ? a : b;
     }
 
-    function _resetClaimantState(address token, address claimant, uint256 amt) private {
-        rewards[token][claimant] = AccruedRewards(_getCurrentIndex(parameters[token].end), amt);
+    function _resetClaimantState(address yieldToken, address claimant, uint256 amt) private {
+        rewards[yieldToken][claimant] = AccruedRewards(_getCurrentIndex(parameters[yieldToken].end), amt);
     }
 }

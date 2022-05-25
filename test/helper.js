@@ -2,6 +2,7 @@
  *   - https://hardhat.org/hardhat-network/reference/
  */
 
+const { BigNumber } = require('ethers');
 const { ethers } = require('hardhat');
 
 /**
@@ -20,11 +21,13 @@ async function deploy(id, ...args) {
 const mint_price = 500;
 const mint_price_ethers = ethers.utils.parseEther(mint_price.toString());
 const end_time = 1931622407;
+const yield_rate = BigNumber.from(10).pow(19); //ethers/day
 
 const ROLES = {
   //web3.utils.soliditySha3('DELEGATE_ROLE')
   MINTER_ROLE: ethers.utils.solidityKeccak256(['string'], ['MINTER_ROLE']), // 0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6
   TREASURY_ROLE: ethers.utils.solidityKeccak256(['string'], ['TREASURY_ROLE']),
+  YIELD_ROLE: ethers.utils.solidityKeccak256(['string'], ['YIELD_ROLE']),
   DEFAULT_ADMIN_ROLE:
     '0x0000000000000000000000000000000000000000000000000000000000000000',
 };
@@ -49,9 +52,19 @@ module.exports = {
     const nut = await deploy('Astronut', yield.address, mint_price);
 
     const [owner] = await ethers.getSigners();
+
+    // YieldManager needs TREASURY_ROLE granted by HDNToken
     await await hdn
       .connect(owner)
       .grantRole(ROLES.TREASURY_ROLE, yield.address);
+
+    // Astronut needs YIELD_ROLE granted by YieldManager
+    await await yield.connect(owner).grantRole(ROLES.YIELD_ROLE, nut.address);
+
+    // set the yield parameters for Astronut
+    await await yield
+      .connect(owner)
+      .setYieldParameters(nut.address, yield_rate, end_time);
 
     return {
       hdn,

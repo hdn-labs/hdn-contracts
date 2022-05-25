@@ -16,8 +16,6 @@ contract Astronut is ERC721Yield {
         mintPrice = _mintPrice;
         id = 0;
         maxTokens = 100;
-
-        yield.setYieldParameters(address(this), 10 ether, 1931622407);
     }
 
     error InsufficientFunds();
@@ -34,7 +32,6 @@ contract Astronut is ERC721Yield {
         payable
         meetsMintPrice() {
         require(id < maxTokens, "all astronuts have been minted");
-
         _safeMint(msg.sender, id);
         id++;
     }
