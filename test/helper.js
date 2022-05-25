@@ -21,7 +21,7 @@ async function deploy(id, ...args) {
 const mint_price = 500;
 const mint_price_ethers = ethers.utils.parseEther(mint_price.toString());
 const end_time = 1931622407;
-const yield_rate = BigNumber.from(10).pow(19); //ethers/day
+const yield_rate = BigNumber.from(10).pow(19); //wei/day
 
 const ROLES = {
   //web3.utils.soliditySha3('DELEGATE_ROLE')
