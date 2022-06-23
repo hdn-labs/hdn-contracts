@@ -19,6 +19,11 @@ task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
   }
 });
 
+task('roles', 'prints all access control roles', async () => {
+  const { ROLES } = require('./test/helper.js');
+  console.log(ROLES);
+});
+
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
