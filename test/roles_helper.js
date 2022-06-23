@@ -1,5 +1,5 @@
 const { ethers } = require('hardhat');
-const { Contract } = ethers;
+const { Contract } = require('ethers');
 
 const ROLES = {
   MINTER_ROLE: ethers.utils.solidityKeccak256(['string'], ['MINTER_ROLE']), // 0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6
@@ -25,14 +25,14 @@ async function hasRole(accessControlContract, checkAddressForRole, role) {
 
 /**
  *
- * @param {Contract} forContract
+ * @param {Contract} accessControlContract
  * @param {keyof ROLES} role
  * @param {string} to
+ * @return {Promise<void>}
  */
-async function grantRole(forContract, role, to) {
+async function grantRole(accessControlContract, role, to) {
   const [owner] = await ethers.getSigners();
-  let txn = await forContract.connect(owner).grantRole(ROLES[role], to);
-  await txn.wait();
+  await await accessControlContract.connect(owner).grantRole(ROLES[role], to);
 }
 
 module.exports = {
