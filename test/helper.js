@@ -4,12 +4,13 @@
 
 const { BigNumber } = require('ethers');
 const { ethers } = require('hardhat');
-
+const { Contract, Signer } = require('ethers');
+const { ROLES, grantRole } = require('./roles_helper');
 /**
  *
  * @param {string} id
  * @param  {...any} args
- * @returns {Promise<ethers.Contract>}
+ * @returns {Promise<Contract>}
  */
 async function deploy(id, ...args) {
   const factory = await ethers.getContractFactory(id);
@@ -22,15 +23,6 @@ const mint_price = 500;
 const mint_price_ethers = ethers.utils.parseEther(mint_price.toString());
 const end_time = 1931622407;
 const yield_rate = BigNumber.from(10).pow(19); //wei/day
-
-const ROLES = {
-  //web3.utils.soliditySha3('DELEGATE_ROLE')
-  MINTER_ROLE: ethers.utils.solidityKeccak256(['string'], ['MINTER_ROLE']), // 0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6
-  TREASURY_ROLE: ethers.utils.solidityKeccak256(['string'], ['TREASURY_ROLE']),
-  YIELD_ROLE: ethers.utils.solidityKeccak256(['string'], ['YIELD_ROLE']),
-  DEFAULT_ADMIN_ROLE:
-    '0x0000000000000000000000000000000000000000000000000000000000000000',
-};
 
 module.exports = {
   ROLES,
@@ -47,19 +39,19 @@ module.exports = {
   mint_price_ethers,
   mint_price,
   create: async function () {
-    const hdn = await deploy('HDNToken');
-    const yield = await deploy('YieldManager', hdn.address);
-    const nut = await deploy('Astronut', yield.address, mint_price);
-
+    let nft_counter = 0;
     const [owner] = await ethers.getSigners();
 
+    const hdn = await deploy('HDNToken');
+    const yield = await deploy('YieldManager', hdn.address);
+
     // YieldManager needs TREASURY_ROLE granted by HDNToken
-    await await hdn
-      .connect(owner)
-      .grantRole(ROLES.TREASURY_ROLE, yield.address);
+    await grantRole(hdn, 'TREASURY_ROLE', yield.address);
+
+    const nut = await deploy('Astronut', yield.address);
 
     // Astronut needs YIELD_ROLE granted by YieldManager
-    await await yield.connect(owner).grantRole(ROLES.YIELD_ROLE, nut.address);
+    await grantRole(yield, 'YIELD_ROLE', nut.address);
 
     // set the yield parameters for Astronut
     await await yield
@@ -70,27 +62,14 @@ module.exports = {
       hdn,
       yield,
       nut,
-      grantRole,
       mintNutNFT,
     };
 
     /**
-     *
-     * @param {ethers.Contract} forContract
-     * @param {keyof ROLES} role
-     * @param {string} to
-     */
-    async function grantRole(forContract, role, to) {
-      const [owner] = await ethers.getSigners();
-      let txn = await forContract.connect(owner).grantRole(ROLES[role], to);
-      await txn.wait();
-    }
-
-    /**
-     * @param {ethers.Signer | ethers.providers.Provider | string} account
+     * @param {Signer | ethers.providers.Provider | string} account
      */
     async function mintNutNFT(account) {
-      const txn = await nut.connect(account).mint({ value: mint_price_ethers });
+      const txn = await nut.connect(owner).mint(account.address, nft_counter++);
       await txn.wait();
       return txn;
     }

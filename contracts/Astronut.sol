@@ -2,37 +2,19 @@
 pragma solidity ^0.8.6;
 
 import "./ERC721Yield.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Astronut is ERC721Yield {
-    uint256 public id;
-    uint56 private mintPrice;
+contract Astronut is ERC721Yield, Ownable {
     uint56 private immutable maxTokens;
 
-    constructor(
-        address _yield,
-        uint56 _mintPrice) 
+    constructor(address _yield) 
         ERC721("DeezAstronuts", "HDNA")
         ERC721Yield(_yield) {
-        mintPrice = _mintPrice;
-        id = 0;
         maxTokens = 100;
     }
 
-    error InsufficientFunds();
-
-    modifier meetsMintPrice() {
-        if (uint256(mintPrice) > msg.value) {
-            revert InsufficientFunds();
-        }
-        _;
-    }
-
-    function mint() 
-        public
-        payable
-        meetsMintPrice() {
+    function mint(address to, uint256 id) public onlyOwner {
         require(id < maxTokens, "all astronuts have been minted");
-        _safeMint(msg.sender, id);
-        id++;
+        _safeMint(to, id);
     }
 }
