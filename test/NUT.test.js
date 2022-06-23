@@ -1,49 +1,49 @@
-const { expect } = require('chai');
+const { expect, use } = require('chai');
+const { solidity } = require('ethereum-waffle');
+
+use(solidity);
+
 const { ethers } = require('hardhat');
-const { create, getAddressBalance, mint_price } = require('./helper');
+const { create } = require('./helper');
 
 describe('Nut', function () {
-  it('mint() should send ERC71 tokens to their respective minters and minters should pay the mint price', async function () {
-    const { nut, mintNutNFT } = await create();
-    const [owner, addr1] = await ethers.getSigners();
-
-    expect(await getAddressBalance(nut.address)).to.equal('0.0');
-
-    await mintNutNFT(owner);
-    await mintNutNFT(addr1);
-
-    expect(await nut.balanceOf(owner.address)).to.equal(1);
-    expect(await nut.balanceOf(addr1.address)).to.equal(1);
-    expect(await nut.id()).to.equal(2);
-
-    expect(parseInt(await getAddressBalance(nut.address))).to.equal(
-      mint_price * 2
-    );
-  });
-
-  /* it('getTokensOwnedBy() should return token ids that are owned by the given addresss', async function () {
-    const { nut, mintNutNFT } = await create();
-
-    const [owner, addr1] = await ethers.getSigners();
-
-    await mintNutNFT(owner);
-    await mintNutNFT(addr1);
-    await mintNutNFT(owner);
-
-    expect(
-      (await nut.getTokensOwnedBy(owner.address)).map((b) => b.toNumber())
-    ).to.eql([0, 2]);
-  }); */
-
-  it('mint() should throw error if msg.value does not meet price requirement', async function () {
+  it('mint() should allow owner to send NFT to any address', async function () {
     const { nut } = await create();
-    const [_, addr1] = await ethers.getSigners();
-    await expect(nut.connect(addr1).mint()).to.be.reverted;
+    const [owner, addr1] = await ethers.getSigners();
+
+    expect(await nut.connect(owner).mint(addr1.address, 0)).to.be.ok;
+    expect(await nut.connect(owner).mint(addr1.address, 99)).to.be.ok;
   });
 
-  /**
-   * possible tests
-   *
-   * _updateRewardsFor() should not update rewards for receipent of NFT transfer if the transfer fails*
-   */
+  it('mint() should properly set ownership of minted NFT', async function () {
+    const { nut } = await create();
+    const [owner, addr1] = await ethers.getSigners();
+
+    await nut.connect(owner).mint(addr1.address, 0);
+    await nut.connect(owner).mint(addr1.address, 99);
+
+    expect(await nut.balanceOf(owner.address)).to.equal(0);
+    expect(await nut.balanceOf(addr1.address)).to.equal(2);
+
+    expect(await nut.ownerOf(0)).to.equal(addr1.address);
+    expect(await nut.ownerOf(99)).to.equal(addr1.address);
+  });
+
+  it('mint() should revert if minted id above 99', async function () {
+    const { nut } = await create();
+    const [owner, addr1] = await ethers.getSigners();
+
+    await expect(nut.connect(owner).mint(addr1.address, 100)).to.be.reverted;
+  });
+
+  it('mint() should revert if called by non-owner', async function () {
+    const { nut } = await create();
+    const [owner, addr1] = await ethers.getSigners();
+
+    await expect(nut.connect(owner).mint(addr1.address, 0)).to.be.ok;
+    await expect(nut.connect(addr1).mint(addr1.address, 1)).to.be.reverted;
+    /* revertedWith(
+      /Ownable: caller is not the owner/
+    ); */
+  });
 });

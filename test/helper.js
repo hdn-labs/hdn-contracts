@@ -4,7 +4,7 @@
 
 const { BigNumber } = require('ethers');
 const { ethers } = require('hardhat');
-const { Contract } = require('ethers');
+const { Contract, Signer } = require('ethers');
 const { ROLES, grantRole } = require('./roles_helper');
 /**
  *
@@ -39,6 +39,7 @@ module.exports = {
   mint_price_ethers,
   mint_price,
   create: async function () {
+    let nft_counter = 0;
     const [owner] = await ethers.getSigners();
 
     const hdn = await deploy('HDNToken');
@@ -65,10 +66,10 @@ module.exports = {
     };
 
     /**
-     * @param {ethers.Signer | ethers.providers.Provider | string} account
+     * @param {Signer | ethers.providers.Provider | string} account
      */
     async function mintNutNFT(account) {
-      const txn = await nut.connect(account).mint({ value: mint_price_ethers });
+      const txn = await nut.connect(owner).mint(account.address, nft_counter++);
       await txn.wait();
       return txn;
     }

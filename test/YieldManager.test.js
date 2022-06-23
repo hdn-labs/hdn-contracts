@@ -74,7 +74,6 @@ describe('YieldManager', function () {
     /** balances should be correct */
     expect(await nut.balanceOf(owner.address)).to.equal(0);
     expect(await nut.balanceOf(addr1.address)).to.equal(1);
-    expect(await nut.id()).to.equal(1);
 
     /** rewards should be correct */
     expect(await getPendingRewards(owner.address)).to.equal(50);
@@ -98,7 +97,6 @@ describe('YieldManager', function () {
     /** balances should be correct */
     expect(await nut.balanceOf(owner.address)).to.equal(0);
     expect(await nut.balanceOf(addr1.address)).to.equal(1);
-    expect(await nut.id()).to.equal(1);
 
     /** rewards should be correct */
     expect(await getPendingRewards(owner.address)).to.equal(50);
@@ -141,7 +139,6 @@ describe('YieldManager', function () {
     /** nft balances should be correct */
     expect(await nut.balanceOf(owner.address)).to.equal(1);
     expect(await nut.balanceOf(addr1.address)).to.equal(1);
-    expect(await nut.id()).to.equal(2, 'unexpected amount of nfts');
 
     /** rewards should be greater than zero */
     expect(await getPendingRewards(owner.address)).to.greaterThan(0);
